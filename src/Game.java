@@ -1,10 +1,14 @@
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Game {
   public static void start() {
     Deck deck = new Deck();
+
     deck.fill();
     deck.shuffle();
+
+    Dealer dealer = new Dealer(deck);
 
     Scanner scan = new Scanner(System.in);
     int players = 0;
@@ -29,30 +33,33 @@ public class Game {
     }
 
     for (Player play : player) {
-      System.out.println(play.toString());
+      System.out.println(play.toString() + "\n");
     }
-
-    int currentPot = 0;
 
     for(int i = 0; i < 3; i++){
       for (Player play : player) {
-        currentPot += round(play, currentPot);
+        round(play, dealer);
+        dealer.table[i + 2] = deck.giveCard();
+        
         System.out.println(play.getChips());
+        System.out.println(dealer.getCurrentBet());
       }
     }
-
-
   }
 
-  public static int round(Player player, int currentPot) {
+  public static void round(Player player, Dealer dealer) {
     //payBlinds();
     if(player.getChips() <= 0){
-      return 0;
+      return;
     }
-    Scanner scan = new Scanner(System.in);
-    int answer;
 
-    System.out.println("""
+    Scanner scan = new Scanner(System.in);
+    int answer = 4;
+
+    System.out.println("Die Karten des Dealers sind:\n" + Arrays.toString(dealer.table) + "\n");
+
+    while(answer == 4){
+      System.out.println("""
             Was willst du tun?
             1)Schieben/Mitgehen
             2)Einsatz erhöhen
@@ -60,37 +67,31 @@ public class Game {
             4)Karten anzeigen
             """);
 
-    answer = scan.nextInt();
+      answer = scan.nextInt();
 
-    switch (answer) {
-      case 1 -> {
-        int potDiff = currentPot - player.getCurrentBet();
-        player.setChips(player.getChips() - potDiff);
-        player.setCurrentBet(player.getCurrentBet() + potDiff);
+      switch (answer) {
+        case 1 -> {
+          int potDiff = dealer.getCurrentBet() - player.getCurrentBet();
+          player.setChips(player.getChips() - potDiff);
+          player.setCurrentBet(player.getCurrentBet() + potDiff);
+        }
+        case 2 -> {
+          raise(dealer, player, scan);
+        }
+        case 3 -> player.setChips(-1);
+        case 4 -> System.out.println(player);
       }
-      case 2 -> {
-        return raise(currentPot, player, scan);
-      }
-      case 3 -> player.setChips(-1);
-      case 4 -> System.out.println(player.toString());
     }
-    return 0;
+
   }
 
-  private static int raise(int currentPot, Player player, Scanner scan) {
+  private static void raise(Dealer dealer, Player player, Scanner scan) {
 
     System.out.println("Um wieviel willst du erhöhen?");
     int bet = scan.nextInt();
 
-    currentPot += bet;
-    player.setChips(player.getChips() - (currentPot - player.getCurrentBet()));
-    player.setCurrentBet(player.getCurrentBet() + (currentPot - player.getCurrentBet()));
-    return currentPot;
+    dealer.setCurrentBet(dealer.getCurrentBet() + bet);
+    player.setChips(player.getChips() - (dealer.getCurrentBet() - player.getCurrentBet()));
+    player.setCurrentBet(player.getCurrentBet() + (dealer.getCurrentBet() - player.getCurrentBet()));
   }
-
-  public static void payBlinds() {
-
-  }
-
-
 }

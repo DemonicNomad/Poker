@@ -1,3 +1,4 @@
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +31,7 @@ public class Deck {
         Card card;
 
         int r;
-        Random rand = new Random();
+        Random rand = new SecureRandom();
         r = rand.nextInt(DECK_SIZE);
 
         while(deck[r] == null){
