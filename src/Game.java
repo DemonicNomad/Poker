@@ -8,17 +8,22 @@ public class Game {
     deck.fill();
     deck.shuffle();
 
-    Dealer dealer = new Dealer(deck);
-
     Scanner scan = new Scanner(System.in);
     int players = 0;
     int chips = 0;
+    int blinds = 0;
 
+    while (blinds <= 0){
+      System.out.println("Wie hohe Blinds?");
+      blinds = scan.nextInt();
+    }
+    Dealer dealer = new Dealer(deck, blinds);
 
     while (chips <= 0) {
       System.out.println("Wie viele Chips?");
       chips = scan.nextInt();
     }
+
     while (players <= 0 || players > 5) {
       System.out.println("Wie viele Spieler?");
       players = scan.nextInt();
@@ -37,18 +42,21 @@ public class Game {
     }
 
     for(int i = 0; i < 3; i++){
+      payBlinds(player, dealer);
+
       for (Player play : player) {
         round(play, dealer);
         dealer.table[i + 2] = deck.giveCard();
-        
+
         System.out.println(play.getChips());
         System.out.println(dealer.getCurrentBet());
       }
+
+      dealer.setPlayerRotation(dealer.getPlayerRotation() + 1);
     }
   }
 
   public static void round(Player player, Dealer dealer) {
-    //payBlinds();
     if(player.getChips() <= 0){
       return;
     }
@@ -93,5 +101,11 @@ public class Game {
     dealer.setCurrentBet(dealer.getCurrentBet() + bet);
     player.setChips(player.getChips() - (dealer.getCurrentBet() - player.getCurrentBet()));
     player.setCurrentBet(player.getCurrentBet() + (dealer.getCurrentBet() - player.getCurrentBet()));
+  }
+
+  public static void payBlinds(Player[] player, Dealer dealer) {
+    int pay = dealer.getPlayerRotation();
+    player[pay].setChips(player[pay].getChips() - dealer.getBlinds());
+    player[pay + 1].setChips(player[pay + 1].getChips() - (dealer.getBlinds() / 2));
   }
 }

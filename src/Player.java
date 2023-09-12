@@ -19,7 +19,8 @@ public class Player {
     public final String toString() {
         return name + "'s" +
                 " Hand : " + Arrays.toString(hand) +
-                " Geld: " + chips;
+                " Geld: " + chips +
+                " Momentaner Einsatz: " + currentBet;
     }
 
     public Card[] getHand() {
